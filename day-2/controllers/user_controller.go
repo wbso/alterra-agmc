@@ -44,24 +44,24 @@ func (con *Controller) CreateUserController(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
+
 	data := models.User{
 		Name:     input.Name,
 		Email:    input.Email,
 		Password: hash,
 	}
 
-	res := con.Model.DB.Create(&data)
-
-	if res.Error != nil {
-		return c.String(http.StatusBadRequest, res.Error.Error())
+	user, err := con.Model.CreateUser(data)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status": "success",
 		"data": Output{
-			ID:    data.ID,
-			Name:  data.Name,
-			Email: data.Email,
+			ID:    user.ID,
+			Name:  user.Name,
+			Email: user.Email,
 		},
 	})
 }
@@ -71,10 +71,10 @@ func (con *Controller) GetUserByIDController(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
-	var user models.User
-	res := con.Model.DB.First(&user, id)
-	if res.Error != nil {
-		return c.String(http.StatusBadRequest, res.Error.Error())
+
+	user, err := con.Model.GetUserByID((id))
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -98,32 +98,32 @@ func (con *Controller) UpdateUserByIDController(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
-	var user models.User
-	res := con.Model.DB.First(&user, id)
-	if res.Error != nil {
-		return c.String(http.StatusBadRequest, res.Error.Error())
-	}
 
 	var input UpdateInput
 	err = c.Bind(&input)
 	if err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
+
+	user, err := con.Model.GetUserByID(id)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
 	user.Name = input.Name
 	user.Email = input.Email
 
-	res = con.Model.DB.Save(&user)
-
-	if res.Error != nil {
-		return c.String(http.StatusBadRequest, res.Error.Error())
+	u, err := con.Model.UpdateUser(&user)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status": "success",
 		"data": Output{
-			ID:    user.ID,
-			Name:  user.Name,
-			Email: user.Email,
+			ID:    u.ID,
+			Name:  u.Name,
+			Email: u.Email,
 		},
 	})
 }
@@ -134,13 +134,15 @@ func (con *Controller) DeleteUserByIDController(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
 
-	var user models.User
-	res := con.Model.DB.First(&user, id)
-	if res.Error != nil {
-		return c.String(http.StatusBadRequest, res.Error.Error())
+	user, err := con.Model.GetUserByID(id)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	con.Model.DB.Delete(&user)
+	err = con.Model.DeleteUser(&user)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status": "success",
