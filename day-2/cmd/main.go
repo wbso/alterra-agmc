@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 
+	"alterratwo/config"
 	"alterratwo/controllers"
+	"alterratwo/models"
 	"alterratwo/routes"
 
 	"github.com/joho/godotenv"
@@ -17,7 +19,20 @@ func run() error {
 		return errors.New("error loading .env file")
 	}
 
-	c := controllers.New()
+	// connect db to mysql or sqlite
+	db, err := config.ConnectMysql()
+	// db, err := config.ConnectSQlite()
+	if err != nil {
+		return fmt.Errorf("error while connecting to database %w", err)
+	}
+	m, err := models.New(db)
+	if err != nil {
+		return err
+	}
+
+	// m.GetAllUser()
+	// return nil
+	c := controllers.New(m)
 	r := routes.New(c)
 	return r.ListenAndServe(":1323")
 }

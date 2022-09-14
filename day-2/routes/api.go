@@ -18,5 +18,12 @@ func (r *Router) InitRouter() error {
 	v1.DELETE("/books/:id", r.Controller.DeleteBookByIDController)
 	v1.POST("/books", r.Controller.CreateBookController)
 
+	// api routes
+	v1.GET("/users", r.Controller.GetAllUserController)
+	v1.GET("/users/:id", r.Controller.GetUserByIDController)
+	v1.PUT("/users/:id", r.Controller.UpdateUserByIDController)
+	v1.DELETE("/users/:id", r.Controller.DeleteUserByIDController)
+	v1.POST("/users", r.Controller.CreateUserController)
+
 	return nil
 }
