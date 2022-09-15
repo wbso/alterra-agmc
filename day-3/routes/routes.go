@@ -4,6 +4,7 @@ import (
 	"alterrathree/controllers"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type Router struct {
@@ -13,6 +14,10 @@ type Router struct {
 
 func New(c *controllers.Controller) *Router {
 	e := echo.New()
+
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "[${time_rfc3339}] ${status} ${method} ${uri} ${latency_human}]\n",
+	}))
 
 	router := &Router{
 		Controller: c,
