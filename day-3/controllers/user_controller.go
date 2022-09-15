@@ -99,6 +99,16 @@ func (con *Controller) UpdateUserByIDController(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
 
+	authId, err := extractUserId(c)
+	if err != nil {
+		return c.String(http.StatusForbidden, err.Error())
+	}
+
+	// validate authorization
+	if id != authId {
+		return c.String(http.StatusForbidden, "you dont have permission to access this resource")
+	}
+
 	var input UpdateInput
 	err = c.Bind(&input)
 	if err != nil {
@@ -132,6 +142,16 @@ func (con *Controller) DeleteUserByIDController(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
+	}
+
+	authId, err := extractUserId(c)
+	if err != nil {
+		return c.String(http.StatusForbidden, err.Error())
+	}
+
+	// validate authorization
+	if id != authId {
+		return c.String(http.StatusForbidden, "you dont have permission to access this resource")
 	}
 
 	user, err := con.Model.GetUserByID(id)

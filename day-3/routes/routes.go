@@ -18,9 +18,9 @@ type Router struct {
 func New(c *controllers.Controller) *Router {
 	e := echo.New()
 
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: "[${time_rfc3339}] ${status} ${method} m${uri} ${latency_human}]\n",
-	}))
+	// e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+	// 	Format: "[${time_rfc3339}] ${status} ${method} m${uri} ${latency_human}]\n",
+	// }))
 	e.Use(middleware.Recover())
 
 	secretKey := []byte(os.Getenv("SECRET_KEY"))

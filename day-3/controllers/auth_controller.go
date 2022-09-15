@@ -1,19 +1,19 @@
 package controllers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
-	"github.com/google/uuid"
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Claims struct {
 	Email string `json:"email"`
-	jwt.RegisteredClaims
+	jwt.StandardClaims
 }
 
 type LoginControllerInput struct {
@@ -46,13 +46,12 @@ func (con *Controller) LoginController(secretKey []byte) func(echo.Context) erro
 		expiresAt := time.Now().Add(5 * time.Minute)
 		accessClaims := Claims{
 			Email: user.Email,
-			RegisteredClaims: jwt.RegisteredClaims{
-				ExpiresAt: jwt.NewNumericDate(expiresAt),
-				IssuedAt:  jwt.NewNumericDate(issuedAt),
-				NotBefore: jwt.NewNumericDate(issuedAt),
+			StandardClaims: jwt.StandardClaims{
+				ExpiresAt: expiresAt.Unix(),
+				IssuedAt:  issuedAt.Unix(),
+				NotBefore: issuedAt.Unix(),
 				Issuer:    "echo app",
 				Subject:   strconv.Itoa(int(user.ID)),
-				ID:        uuid.NewString(),
 			},
 		}
 
@@ -67,4 +66,14 @@ func (con *Controller) LoginController(secretKey []byte) func(echo.Context) erro
 			"expires_at":   expiresAt.Unix(),
 		})
 	}
+}
+
+func extractUserId(c echo.Context) (userId int, err error) {
+	user := c.Get("user").(*jwt.Token)
+	if user.Valid {
+		claims := user.Claims.(*Claims)
+		userId, err = strconv.Atoi(claims.Subject)
+		return userId, err
+	}
+	return userId, errors.New("invalid claims")
 }

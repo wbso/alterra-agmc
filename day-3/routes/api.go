@@ -3,12 +3,17 @@ package routes
 import (
 	"net/http"
 
+	"alterrathree/controllers"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func (r *Router) InitRouter() error {
-	jwtMiddleware := middleware.JWT(r.SecretKey)
+	jwtMiddleware := middleware.JWTWithConfig(middleware.JWTConfig{
+		Claims:     &controllers.Claims{},
+		SigningKey: r.SecretKey,
+	})
 
 	r.Router.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
