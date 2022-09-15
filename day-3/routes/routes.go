@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"os"
+
 	"alterrathree/controllers"
 
 	"github.com/labstack/echo/v4"
@@ -10,18 +12,22 @@ import (
 type Router struct {
 	Controller *controllers.Controller
 	Router     *echo.Echo
+	SecretKey  []byte
 }
 
 func New(c *controllers.Controller) *Router {
 	e := echo.New()
 
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: "[${time_rfc3339}] ${status} ${method} ${uri} ${latency_human}]\n",
+		Format: "[${time_rfc3339}] ${status} ${method} m${uri} ${latency_human}]\n",
 	}))
+	e.Use(middleware.Recover())
 
+	secretKey := []byte(os.Getenv("SECRET_KEY"))
 	router := &Router{
 		Controller: c,
 		Router:     e,
+		SecretKey:  secretKey,
 	}
 	router.InitRouter()
 	return router

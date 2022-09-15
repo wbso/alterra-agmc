@@ -18,6 +18,16 @@ func (m *Model) GetAllUser() ([]User, error) {
 	return users, result.Error
 }
 
+func (m *Model) GetUserByEmail(email string) (User, error) {
+	var user User
+	res := m.db.Where(&User{Email: email}).First(&user)
+	if res.Error != nil {
+		return user, res.Error
+	}
+
+	return user, nil
+}
+
 func (m *Model) GetUserByID(id int) (User, error) {
 	var user User
 	res := m.db.First(&user, id)
