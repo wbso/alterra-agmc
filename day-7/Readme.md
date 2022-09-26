@@ -1,4 +1,7 @@
-# Day 6 Hexagonal architecture
+# Day 7 Create Docker Image And Push To Registry
+
+docker image url: https://hub.docker.com/r/wbso/agmc-go
+
 
 task: implement Hexagonal architecture using echo framework use gorm
 
