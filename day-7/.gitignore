@@ -1,0 +1,5 @@
+/tmp
+.env
+*.db
+.vscode
+.idea
