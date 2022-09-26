@@ -32,7 +32,7 @@ func run() error {
 	// create handler instance
 	h := handler.New(userService, bookService)
 
-	return h.ListenAndServe(envDefault("PORT", ":1323"))
+	return h.ListenAndServe(envDefault("PORT", ":8080"))
 }
 
 func main() {
