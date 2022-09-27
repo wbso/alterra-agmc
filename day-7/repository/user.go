@@ -61,7 +61,7 @@ func (u UserRepo) Index(ctx context.Context) ([]entity.User, error) {
 
 func (u UserRepo) GetByEmail(ctx context.Context, email string) (entity.User, error) {
 	var user UserDAO
-	res := u.db.Where(&UserDAO{Email: email}).First(&user)
+	res := u.db.Where("email = ?", email).First(&user)
 	if res.Error != nil {
 		return user.ToEntity(), res.Error
 	}

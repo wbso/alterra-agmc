@@ -5,6 +5,8 @@ import (
 	"alterraseven/entity"
 	"alterraseven/repository"
 	"context"
+	"errors"
+	"fmt"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -14,6 +16,7 @@ type Service interface {
 	Create(context.Context, dto.UserCreateRequest) (dto.UserResponse, error)
 	Update(context.Context, int, dto.UserCreateRequest) (dto.UserResponse, error)
 	Delete(context.Context, int) error
+	Login(ctx context.Context, email string, password string) (dto.UserResponse, error)
 }
 
 type UserService struct {
@@ -85,6 +88,23 @@ func (u UserService) Delete(ctx context.Context, i int) error {
 		return err
 	}
 	return nil
+}
+
+func (u UserService) Login(ctx context.Context, email string, password string) (dto.UserResponse, error) {
+	// get user
+	fmt.Println(email)
+	user, err := u.repo.GetByEmail(ctx, email)
+	if err != nil {
+		return dto.UserResponse{}, errors.New("user not found")
+	}
+	fmt.Println(user)
+	// compare hash
+	err = bcrypt.CompareHashAndPassword(user.Password, []byte(password))
+	if err != nil {
+		return dto.UserResponse{}, errors.New("invalid credentials")
+	}
+
+	return userEntityToDTO(user), nil
 }
 
 func userEntityToDTO(user entity.User) dto.UserResponse {

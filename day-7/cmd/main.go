@@ -3,8 +3,11 @@ package main
 import (
 	"alterraseven/app/book"
 	"alterraseven/app/user"
+	"alterraseven/entity"
 	"alterraseven/repository"
+	"context"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"os"
 
 	"alterraseven/config"
@@ -25,6 +28,23 @@ func run() error {
 	userRepo := repository.NewUserRepository(db)
 	bookRepo := repository.NewBookRepository()
 
+	// seed user
+	_, err = userRepo.GetByEmail(context.Background(), "tegar@example.com")
+	if err != nil {
+		hash, err := bcrypt.GenerateFromPassword([]byte("secret123!"), 10)
+		if err != nil {
+			return err
+		}
+		newUser := entity.User{
+			Name:     "tegar",
+			Email:    "tegar@example.com",
+			Password: hash,
+		}
+		_, err = userRepo.Create(context.Background(), newUser)
+		if err != nil {
+			return err
+		}
+	}
 	// create service instance
 	userService := user.New(userRepo)
 	bookService := book.New(bookRepo)
