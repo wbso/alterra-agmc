@@ -4,6 +4,7 @@ import (
 	"alterraseven/entity"
 	"context"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type UserDAO struct {
@@ -15,6 +16,7 @@ type UserDAO struct {
 
 func (u UserDAO) ToEntity() entity.User {
 	return entity.User{
+		ID:       int(u.ID),
 		Name:     u.Name,
 		Email:    u.Email,
 		Password: u.Password,
@@ -79,12 +81,13 @@ func (u UserRepo) GetByID(ctx context.Context, id int) (entity.User, error) {
 	return user.ToEntity(), nil
 }
 
-func (u UserRepo) Update(ctx context.Context, user entity.User) (entity.User, error) {
-	res := u.db.Save(userEntityToDAO(user))
-	if res.Error != nil {
-		return user, res.Error
-	}
-	return user, nil
+func (u UserRepo) Update(ctx context.Context, data entity.User) (entity.User, error) {
+	var user UserDAO
+	u.db.Model(&user).
+		Clauses(clause.Returning{}).
+		Where("id = ?", data.ID).
+		Update("name", data.Name)
+	return user.ToEntity(), nil
 }
 
 func (u UserRepo) Delete(ctx context.Context, user entity.User) error {

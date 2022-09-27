@@ -14,7 +14,7 @@ type Service interface {
 	Index(context.Context) ([]dto.UserResponse, error)
 	Get(context.Context, int) (dto.UserResponse, error)
 	Create(context.Context, dto.UserCreateRequest) (dto.UserResponse, error)
-	Update(context.Context, int, dto.UserCreateRequest) (dto.UserResponse, error)
+	Update(context.Context, int, dto.UserUpdateRequest) (dto.UserResponse, error)
 	Delete(context.Context, int) error
 	Login(ctx context.Context, email string, password string) (dto.UserResponse, error)
 }
@@ -61,7 +61,7 @@ func (u UserService) Create(ctx context.Context, input dto.UserCreateRequest) (r
 	return userEntityToDTO(createdUser), nil
 }
 
-func (u UserService) Update(ctx context.Context, i int, input dto.UserCreateRequest) (res dto.UserResponse, err error) {
+func (u UserService) Update(ctx context.Context, i int, input dto.UserUpdateRequest) (res dto.UserResponse, err error) {
 	//
 	//	// validate authorization
 	//	if id != authId {
@@ -69,9 +69,8 @@ func (u UserService) Update(ctx context.Context, i int, input dto.UserCreateRequ
 	//	}
 	//
 	updatedUser, err := u.repo.Update(ctx, entity.User{
-		ID:    i,
-		Name:  input.Name,
-		Email: input.Email,
+		ID:   i,
+		Name: input.Name,
 	})
 	if err != nil {
 		return dto.UserResponse{}, err
